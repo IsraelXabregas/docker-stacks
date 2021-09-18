@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  server:
+    image: 'jc21/nginx-proxy-manager:latest'
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+    volumes:
+      - nlb_data:/data
+      - nlb_letsencrypt:/etc/letsencrypt
+    networks:
+      - nlb_ingress
+    ports:
+      - '80:80'
+      - '443:443'
+      - '81:81'
+    secrets:
+      - source: nlb_server_config
+        target: /app/config/production.json	
+        uid: '0'
+        gid: '0'
+        mode: 0444
+   
+volumes:
+  nlb_data:
+      external: true
+  nlb_letsencrypt:
+      external: true
+networks:
+  nlb_ingress:
+      external: true
+secrets:
+  nlb_server_config:
+      external: true      
